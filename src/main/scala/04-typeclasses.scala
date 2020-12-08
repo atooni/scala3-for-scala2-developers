@@ -100,8 +100,9 @@ object typeclass_basics:
    * With the help of both `given` and `using`, create an instance of the `PrettyPrint` type class
    * for a generic `List[A]`, given an instance of `PrettyPrint` for the type `A`.
    */
-  given [A] (using PrettyPrint [A]) as PrettyPrint[List[A]]:
-    extension (a: List[A]) def prettyPrint: String = a.map(_.prettyPrint).mkString(",")
+  given [A] (using PrettyPrint [A]) as PrettyPrint[List[A]] =
+    l => l.map(_.prettyPrint).mkString(",")
+//    extension (a: List[A]) def prettyPrint: String = a.map(_.prettyPrint).mkString(",")
 
   /**
    * EXERCISE 7
@@ -111,8 +112,6 @@ object typeclass_basics:
    */
   given vectorPrettyPrint[A](using PrettyPrint[A]) as PrettyPrint[Vector[A]]:
     extension (v : Vector[A]) def prettyPrint: String = v.map(_.prettyPrint).mkString(",")
-
-  import scala.CanEqual._ 
 
 object given_scopes:
   trait Hash[-A]:
@@ -137,18 +136,21 @@ object given_scopes:
    * 
    * Import the right given into the scope (but ONLY this given) so the following code will compile.
    */
-    import HashGivens.given_Hash_Double
+    import HashGivens.{ given Hash[Double] }
     12.123.hash   
 
   
 object typeclass_derives:
+
+  import scala.CanEqual
+
   /**
    * EXERCISE 1
    * 
    * Using the `derives` clause, derive an instance of the type class `Eql` for 
    * `Color`.
    */
-  enum Color:
+  enum Color derives CanEqual:
     case Red 
     case Green 
     case Blue
@@ -160,6 +162,7 @@ object typeclass_derives:
  * conversions"--the act of automatically converting one type to another.
  */
 object conversions:
+  import scala.language.implicitConversions
   final case class Rational(n: Int, d: Int)
 
   /**
@@ -169,7 +172,7 @@ object conversions:
    * `Rational` (from) and `Double` (to).
    */
   // given ...
-  given Conversion[Rational, Double] = ???
+  given Conversion[Rational, Double] = r => r.n.toDouble / r.d.toDouble
 
   /**
    * EXERCISE 2
@@ -177,7 +180,8 @@ object conversions:
    * Multiply a rational number by 2.0 (a double) to verify your automatic
    * conversion works as intended.
    */
-  Rational(1, 2)
+  import scala.language.implicitConversions
+  Rational(1, 2) * 2.0
 
 object typeclass_graduation:
   /**
@@ -187,6 +191,14 @@ object typeclass_graduation:
    */
   enum PrimType[A]:
     case Int extends PrimType[Int]
+    case Byte extends PrimType[Byte]
+    case Char extends PrimType[Char]
+    case Double extends PrimType[Double]
+    case Float extends PrimType[Float]
+    case Long extends PrimType[Long]
+    case Short extends PrimType[Short]
+    case Unit extends PrimType[Unit]
+    case String extends PrimType[String]
   
   /**
    * EXERCISE 2
@@ -197,13 +209,15 @@ object typeclass_graduation:
     case Record(fields: Map[String, Data])
     case Primitive[A](primitive: A, primType: PrimType[A])
     case Collection(elements: Vector[Data])
+    case Enumeration(tag: String, data: Data)
 
   /**
    * EXERCISE 3
    * 
    * Develop a type class called `EncodeData[A]`, that can encode an `A` into `Data`.
    */
-  trait EncodeData[A]
+  trait EncodeData[A]:
+    extension (self: A) def encode: Data
 
   /**
    * EXERCISE 4
@@ -211,7 +225,23 @@ object typeclass_graduation:
    * In the companion object of `Data`, write encoders for different primitive types in Scala,
    * including lists and collections.
    */
-  object EncodeData
+  object EncodeData:
+    given EncodeData[Int] = Data.Primitive(_, PrimType.Int)
+    given EncodeData[Byte] = Data.Primitive(_, PrimType.Byte)
+    given EncodeData[Char] = Data.Primitive(_, PrimType.Char)
+    given EncodeData[Double] = Data.Primitive(_, PrimType.Double)
+    given EncodeData[Float] = Data.Primitive(_, PrimType.Float)
+    given EncodeData[Long] = Data.Primitive(_, PrimType.Long)
+    given EncodeData[Short] = Data.Primitive(_, PrimType.Short)
+    given EncodeData[Unit] = Data.Primitive(_, PrimType.Unit)
+    given EncodeData[String] = Data.Primitive(_, PrimType.String)
+
+    given [A](using EncodeData[A]) as EncodeData[Vector[A]] =
+      v => Data.Collection(v.map(_.encode))
+
+    given [A](using EncodeData[A]) as EncodeData[List[A]] = 
+      v => Data.Collection(v.toVector.map(_.encode))
+
 
   /**
    * EXERCISE 5
@@ -219,4 +249,9 @@ object typeclass_graduation:
    * Create an instance of `EncodeData` for `Person`.
    */
   final case class Person(name: String, age: Int)
-  object Person
+  object Person:
+    import EncodeData.{ given EncodeData[String] }
+    import EncodeData.{ given EncodeData[Int] }
+
+    given EncodeData[Person] = p => Data.Record(Map("name" -> p.name.encode, "age" -> p.age.encode))
+
