@@ -13,7 +13,7 @@ object ext_methods:
    * Add an extension method to `Email` to retrieve the username of the email address (the part 
    * of the string before the `@` symbol).
    */
-  extension (e: Email) def username: String = ???
+  extension (e: Email) def username: String = e.value.takeWhile(_ != '@')
 
   val sherlock = Email("sherlock@holmes.com").username
 
@@ -23,7 +23,7 @@ object ext_methods:
    * Add an extension method to `Email` to retrieve the server of the email address (the part of 
    * the string after the `@` symbol).
    */
-  // extension
+  extension (e: Email) def server: String = e.value.dropWhile(_ != '@').tail
 
   /**
    * EXERCISE 3
@@ -31,7 +31,8 @@ object ext_methods:
    * Add an extension method to `Option[A]` that can zip one option with another `Option[B]`, to 
    * return an `Option[(A, B)]`.
    */
-  // extension 
+  extension [A,B](a : Option[A]) def zip(b : Option[B]) = a.map(a => b.map(b => (a,b)))
+  val c = Some(7).zip(Some("foo"))
 
   /**
    * A rational number is one in the form n/m, where n and m are integers.
@@ -52,8 +53,7 @@ object ext_methods:
    * 
    * Convert this implicit syntax class to use extension methods.
    */
-  implicit class StringOps(self: String):
-    def equalsIgnoreCase(that: String) = self.toLowerCase == that.toLowerCase
+  extension (s : String) def equalsIgnoreCase(that : String)= s.toLowerCase == that.toLowerCase
 
   object scope:
     extension (s: String) def isSherlock: Boolean = s.startsWith("Sherlock")
@@ -64,4 +64,7 @@ object ext_methods:
    * Import the extension method `isSherlock` into the following object so the code will compile.
    */
   object test:
-    // "John Watson".isSherlock
+    import scope.isSherlock
+    "John Watson".isSherlock
+  end test
+    

@@ -67,8 +67,11 @@ package enums:
    * Take special note of the inferred type parameters in the case constructors!
    */
   enum Result[+Error, +Value]:
-    case Succeed(value: Value) extends Result[Nothing, Value]
-    case Fail(error: Error) extends Result[Error, Nothing]
+    case Succeed(value: Value)
+    case Fail(error: Error)
+
+  val s = Result.Succeed("foo")  
+  val f = Result.Fail("bar")
 
   /**
    * EXERCISE 5
@@ -78,7 +81,9 @@ package enums:
    * Take special note of the inferred type parameters in the case constructors!
    */
   enum Workflow[-Input, +Output]:
-    case End(value: Output) extends Workflow[Any, Output]
+    case End(value: Output)
+
+  val wf = Workflow.End("test")  
 
   /**
    * EXERCISE 6
@@ -88,6 +93,9 @@ package enums:
   enum Conversion[-From, +To]:
     case AnyToString extends Conversion[Any, String]
     case StringToInt extends Conversion[String, Option[Int]]
+
+  val atos = Conversion.AnyToString
+  val stoi = Conversion.StringToInt
 
 /**
  * CASE CLASSES
@@ -101,9 +109,10 @@ package case_classes:
    * By making the public constructor private, make a smart constructor for `Email` so that only 
    * valid emails may be created.
    */
-  final case class Email(value: String)
+  final case class Email private (value: String)
   object Email:
-    def fromString(v: String): Option[Email] = ???
+    def fromString(v: String): Option[Email] = 
+      if isValidEmail(v) then Some(Email(v)) else None 
 
     def isValidEmail(v: String): Boolean = v.matches("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$")
 
@@ -113,7 +122,7 @@ package case_classes:
    * Try to make a copy of an existing `Email` using `Email#copy` and note what happens.
    * 
    */
-  def changeEmail(email: Email): Email = ???
+  // def changeEmail(email: Email): Email = email.copy(value = "foober") // wont compile 
 
   /**
    * EXERCISE 3
@@ -121,7 +130,7 @@ package case_classes:
    * Try to create an Email directly by using the generated constructor in the companion object.
    * 
    */
-  def caseClassApply(value: String): Email = ???
+   // def caseClassApply(value: String): Email = Email("andreas") // won't compile 
 
 /**
  * PATTERN MATCHING
