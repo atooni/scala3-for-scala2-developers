@@ -16,20 +16,18 @@
  * in Scala 3.
  */
 package enums: 
+
+  enum Either[+L, +R]:
+    case Left(value : L)
+    case Right(value : R)
+
   /**
    * EXERCISE 1
    * 
    * Convert this "sealed trait" to an enum.
    */
-  sealed trait DayOfWeek
-  object DayOfWeek:
-    case object Sunday extends DayOfWeek
-    case object Monday extends DayOfWeek
-    case object Tuesday extends DayOfWeek
-    case object Wednesday extends DayOfWeek
-    case object Thursday extends DayOfWeek
-    case object Friday extends DayOfWeek
-    case object Saturday extends DayOfWeek
+  enum DayOfWeek:
+    case Sunday, Moday, Tuesday, Wednesday, Thursday, Friday, Saturday
 
   /**
    * EXERCISE 2
@@ -37,8 +35,8 @@ package enums:
    * Explore interop with Java enums by finding all values of `DayOfWeek`, and by 
    * finding the value corresponding to the string "Sunday".
    */
-  def daysOfWeek: Array[DayOfWeek] = ???
-  def sunday: DayOfWeek = ???
+  def daysOfWeek: Array[DayOfWeek] = DayOfWeek.values
+  def sunday: DayOfWeek = DayOfWeek.valueOf("Sunday")
 
   /**
    * EXERCISE 3
@@ -47,12 +45,19 @@ package enums:
    * 
    * Take special note of the inferred type of any of the case constructors!
    */
-  sealed trait Color 
-  object Color:
-    case object Red extends Color 
-    case object Green extends Color 
-    case object Blue extends Color
-    final case class Custom(red: Int, green: Int, blue: Int) extends Color
+  enum Color:
+    self => 
+      case Red
+      case Green
+      case Blue
+      case Custom(r : Int, g: Int, b: Int) extends Color
+
+      def isPurplish: Boolean = self match 
+        case Custom(red, green, blue) => green < (red + blue) / 10 && red / 3 == blue / 3
+        case _ => false
+
+  val coolColor = Color.Custom(77, 66, 99)
+  val _ = coolColor.isPurplish
 
   /**
    * EXERCISE 4
@@ -61,10 +66,9 @@ package enums:
    * 
    * Take special note of the inferred type parameters in the case constructors!
    */
-  sealed trait Result[+Error, +Value]
-  object Result:
-    final case class Succeed[Value](value: Value) extends Result[Nothing, Value]
-    final case class Fail[Error](error: Error) extends Result[Error, Nothing]
+  enum Result[+Error, +Value]:
+    case Succeed(value: Value) extends Result[Nothing, Value]
+    case Fail(error: Error) extends Result[Error, Nothing]
 
   /**
    * EXERCISE 5
@@ -73,19 +77,17 @@ package enums:
    * 
    * Take special note of the inferred type parameters in the case constructors!
    */
-  sealed trait Workflow[-Input, +Output]
-  object Workflow:
-    final case class End[Output](value: Output) extends Workflow[Any, Output]
+  enum Workflow[-Input, +Output]:
+    case End(value: Output) extends Workflow[Any, Output]
 
   /**
    * EXERCISE 6
    * 
    * Convert this "sealed trait" to an enum.
    */
-  sealed trait Conversion[-From, +To]
-  object Conversion:
-    case object AnyToString extends Conversion[Any, String]
-    case object StringToInt extends Conversion[String, Option[Int]]
+  enum Conversion[-From, +To]:
+    case AnyToString extends Conversion[Any, String]
+    case StringToInt extends Conversion[String, Option[Int]]
 
 /**
  * CASE CLASSES

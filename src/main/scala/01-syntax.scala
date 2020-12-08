@@ -214,6 +214,4 @@ package control_flow:
   def forComprehension = 
     val numbers = List(1, 2, 9, 3, -1, 6, 5, 2)
 
-    for 
-      i <- numbers
-    yield i * i
+    for i <- numbers yield i * i
