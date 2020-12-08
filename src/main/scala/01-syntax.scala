@@ -7,24 +7,22 @@
  * Love it or hate it, you're sure to see it in the wild. Take the time to learn the rules of 
  * Scala 3's new optional braces feature!
  */
-package optional_braces:
+package optional_braces
   /**
    * EXERCISE 1
    * 
    * Refactor this class declaration so that it does not utilize curly braces.
    */
-  class ClassDecl {
+  class ClassDecl:
     def run() = println("Hello World!")
-  }
 
   /**
    * EXERCISE 2
    * 
    * Refactor this trait declaration so that it does not utilize curly braces.
    */
-  trait TraitDecl {
+  trait TraitDecl:
     def run() = println("Hello World!")
-  }
 
   /**
    * EXERCISE 3
