@@ -117,7 +117,7 @@ object given_scopes:
   trait Hash[-A]:
     extension (a: A) def hash: Int
 
-  object HashGivens:
+  object Hash:
     given Hash[Int] = _.hashCode
     given Hash[Long] = _.hashCode
     given Hash[Float] = _.hashCode
@@ -128,7 +128,7 @@ object given_scopes:
    * 
    * Import the right given into the scope (but ONLY this given) so the following code will compile.
    */
-    import HashGivens.given_Hash_Int
+    import Hash.given_Hash_Int
     12.hash 
 
   /**
@@ -136,7 +136,7 @@ object given_scopes:
    * 
    * Import the right given into the scope (but ONLY this given) so the following code will compile.
    */
-    import HashGivens.{ given Hash[Double] }
+    import Hash.{ given Hash[Double] }
     12.123.hash   
 
   
@@ -147,13 +147,21 @@ object typeclass_derives:
   /**
    * EXERCISE 1
    * 
-   * Using the `derives` clause, derive an instance of the type class `Eql` for 
+   * Using the `derives` clause, derive an instance of the type class `CanEqual` for 
    * `Color`.
    */
   enum Color derives CanEqual:
     case Red 
     case Green 
     case Blue
+
+  /**
+   * EXERCISE 2
+   * 
+   * Using the `derives` clause, derive an instance of the type class `CanEqual` for 
+   * `Person`.
+   */
+  final case class Person(name: String, age: Int)
 
 /**
  * IMPLICIT CONVERSIONS

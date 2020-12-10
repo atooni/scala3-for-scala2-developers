@@ -55,16 +55,13 @@ object ext_methods:
    */
   extension (s : String) def equalsIgnoreCase(that : String)= s.toLowerCase == that.toLowerCase
 
-  object scope:
-    extension (s: String) def isSherlock: Boolean = s.startsWith("Sherlock")
-
   /**
    * EXERCISE 6
    * 
    * Import the extension method `isSherlock` into the following object so the code will compile.
    */
   object test:
-    import scope.isSherlock
-    "John Watson".isSherlock
-  end test
-    
+    val test: Boolean = ??? // "John Watson".isSherlock
+
+  object string_extensions:
+    extension (s: String) def isSherlock: Boolean = s.startsWith("Sherlock")

@@ -428,6 +428,58 @@ object type_lambdas:
    */
   // def sizableMap2[K] = sizableMap[K]
 
+
+/**
+ * CONTEXT FUNCTIONS
+ * 
+ * Scala 3 introduces context functions, which are functions that depend on some context.
+ */
+object context_functions:
+  trait Program:
+    def addOp(op: Op): Unit 
+  object Program:
+    def make(): Program = 
+      var ops = List.empty[Op]
+      new Program:
+        def addOp(op: Op): Unit = 
+          ops = op :: ops
+
+
+  def addOp(op: Op)(using p: Program) = 
+    p.addOp(op)
+
+  enum Op:
+    case PushInt(v: Int)
+    case Pop
+    case Mul 
+    case Sub
+    case Add
+
+  def op(o: Op): Program ?=> Unit = addOp(o)
+
+  def pushInt(i: Int): Program ?=> Unit = op(Op.PushInt(i))
+  val mul: Program ?=> Unit = op(Op.Mul)
+
+  def program[A](f: Program ?=> A): A = 
+    given Program = Program.make()
+    f 
+
+  program {
+    pushInt(12)
+    pushInt(23)
+    mul
+  }
+
+  /**
+   * EXERCISE 1
+   * 
+   * Define a small DSL for building HTML.
+   */
+  def p: HTML[Unit] = ???
+
+  type HTML[+A] = StringBuilder ?=> A
+
+
 /**
  * SINGLETON TYPES
  * 
