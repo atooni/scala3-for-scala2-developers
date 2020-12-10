@@ -43,14 +43,18 @@ object dropped:
    * Rewrite the do/while loop to an equivalent while loop.
    */
   var i = 0
-  // do { println("Hello!"); i = i + 1; } while (i < 10)
+  while  
+    println("Hello!")
+    i = i + 1
+    i < 10
+  do ()
 
   /**
    * EXERCISE 5
    * 
    * Rewrite the following procedural method into an expression-oriented method.
    */
-  // def runIt() { println("Running it!") }
+  def runIt()  = { println("Running it!") }
 
   /**
    * EXERCISE 6

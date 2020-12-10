@@ -15,7 +15,7 @@ object inline_basics:
    * Guarantee the Scala compiler will inline the following constant by using the `inline` keyword.
    * Then explicitly ascribe a type and note your findings.
    */
-  val LoggingEnabled = false 
+  inline val LoggingEnabled : false = false 
 
   /**
    * EXERCISE 2
@@ -23,7 +23,7 @@ object inline_basics:
    * Guarantee the Scala compiler will inline the following method anywhere it is applied, by using 
    * the `inline` keyword.
    */
-  def log(line: => String): Unit = 
+  inline def log(line: => String): Unit = 
     if (LoggingEnabled) println(line)
 
   /**
@@ -32,6 +32,7 @@ object inline_basics:
    * Simplify the following expression as the Scala compiler would simplify it.
    */
   val _ = log("This is a test!")
+  val _ = ()
 
 object inline_recursion:
   /**
@@ -64,7 +65,7 @@ object inline_transparent:
       * Apply the `transparent` modifier to this use of `inline` so the specific subtype of the 
       * return value will be reflected at the application site at compile-time.
       */
-    inline def apply(v: Int): Option[Natural] = 
+    transparent inline def apply(v: Int): Option[Natural] = 
       if (v >= 0) Some(new Natural(v)) else None
 
     def fromInt(v: Int): Option[Natural] = apply(v)
@@ -75,14 +76,14 @@ object inline_transparent:
    * 
    * Define an implicit conversion from `Some[Natural]` to `Natural`.
    */
-  given Conversion[Some[Natural], Natural] = ???
+  given Conversion[Some[Natural], Natural] = _.get
 
   /**
    * EXERCISE 3
    * 
    * Change the type of `zero` to `Natural`, and explain why this does or does not compile.
    */
-  val zero: Option[Natural] = Natural(0)
+  val zero: Natural = Natural(0)
 
 object inline_conditional:
   import scala.compiletime._
@@ -150,7 +151,7 @@ object compiletime:
    * 
    * Hint: You will have to mark `succ` as inline to call this function.
    */
-  def succ[N <: Int]: Int = ???
+  inline def succ[N <: Int]: Int = ???
 
   /**
    * EXERCISE 2
@@ -158,7 +159,7 @@ object compiletime:
    * Call the function `succ` on the type `3`. Make any changes to `succ` that are necessary to 
    * type the result of `succ[3]` as `4`.
    */
-  def four = ???
+  def four = succ[3]
 
   /**
    * EXERCISE 3
@@ -191,7 +192,10 @@ object compiletime:
    * 
    * Using `error`, produce a compile-time failure if the provided number is less than 0.
    */
-  inline def assertNatural(n: Int): Unit = ???
+  inline def assertNatural(n: Int): Unit = 
+    if (n < 0) error("The argument must be greater then 0")
+
+  assertNatural(1)  
 
 object selective_summon:
   import scala.compiletime.summonFrom
@@ -202,7 +206,10 @@ object selective_summon:
    * Using `summonFrom`, create a function that makes a set for the provided type: if the type has 
    * an ordering, then use `TreeSet`, otherwise, use `HashSet`.
    */
-  inline def setFor[T]: Set[T] = ???
+  inline def setFor[T]: Set[T] = summonFrom {
+    case o : Ordering[T] => ???
+    case _ => ???
+  }
 
 object inline_params:
   inline val LoggingLevel = 1
