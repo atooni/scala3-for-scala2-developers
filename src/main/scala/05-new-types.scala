@@ -444,7 +444,6 @@ object context_functions:
         def addOp(op: Op): Unit = 
           ops = op :: ops
 
-
   def addOp(op: Op)(using p: Program) = 
     p.addOp(op)
 
@@ -460,7 +459,7 @@ object context_functions:
   def pushInt(i: Int): Program ?=> Unit = op(Op.PushInt(i))
   val mul: Program ?=> Unit = op(Op.Mul)
 
-  def program[A](f: Program ?=> A): A = 
+  def program[A](f: Program ?=> A): Unit = 
     given Program = Program.make()
     f 
 
@@ -473,12 +472,38 @@ object context_functions:
   /**
    * EXERCISE 1
    * 
-   * Define a small DSL for building HTML.
+   * Define a small DSL for building HTML. No nesting of elements, No safety nets 
    */
-  def p: HTML[Unit] = ???
+  trait Html:
+    def add(e : Element) : String
 
-  type HTML[+A] = StringBuilder ?=> A
+  object Html:
+    def make() : Html = 
+      var b = new StringBuilder()
+      new Html:
+        def add(h : Element) : String = 
+          h match 
+            case Element.Title(t)     => b.append(s"<title>$t</title>"); b.toString
+            case Element.Link(t, r)   => b.append(s"""<a href"$r"=>$t</a>"""); b.toString
+            case Element.Paragraph(t) => b.append(s"<p>$t</p>"); b.toString
+            case Element.Heading(l, t)  => b.append(s"<h$l>$t</h$l>"); b.toString
 
+  enum Element:
+    case Title(t : String)
+    case Link(text : String, href: String)
+    case Paragraph(text : String)
+    case Heading(lvl: Int, text: String) 
+
+  def addElement(e : Element)(using doc : Html) : String = doc.add(e)
+
+  def document(f: Html ?=> String): String =
+    given Html = Html.make()
+    f
+
+  val myPage = document {
+    addElement(Element.Title("Hello"))
+    addElement(Element.Heading(1, "Wow"))
+  }
 
 /**
  * SINGLETON TYPES
