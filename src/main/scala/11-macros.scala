@@ -26,14 +26,14 @@ object macro_basics:
    * 
    * Construct an `Expr[Int]` by using the `Expr.apply` constructor on an int literal.
    */
-  def exprInt: Expr[Int] = Expr.apply(123)
+  inline def exprInt(inline i : Int)(using Quotes) : Expr[Int] = Expr(i)
 
   /**
    * EXERCISE 2
    * 
    * Construct an `Expr[String]` by using the `Expr.apply` constructor on a string literal.
    */
-  def exprString: Expr[String] = Expr.apply("Hello Andreas")
+  inline def exprString(inline s : String)(using Quotes): Expr[String] = Expr(s)
   /**
    * EXERCISE 3
    * 
@@ -42,7 +42,8 @@ object macro_basics:
    * 
    * Also inline the parameters so they will be fully expanded in the macro.
    */
-  def assertEquals[A](expected: A, actual: A): Unit = ???
+  inline def assertEquals[A](inline expected: A, inline actual: A): Unit = 
+    ${ assertEqualsImpl('expected, 'actual) }
 
   /**
    * EXERCISE 4
@@ -52,8 +53,11 @@ object macro_basics:
    * of the expressions. You will have to use quotation and splicing, as well as 
    * `Expr#show`.
    */
-  def assertEqualsImpl(expected: Expr[Any], actual: Expr[Any])(using Quotes): Expr[Unit] =
-    ???
+  def assertEqualsImpl(expected: Expr[Any], actual: Expr[Any])(using Quotes): Expr[Unit] = '{
+
+    if !$expected.equals($actual) then
+      throw AssertionError("failed assertion: expected " + ${Expr(expected.show)} + ", got " + ${Expr(actual.show)})
+  }
 
   /**
    * EXERCISE 5
