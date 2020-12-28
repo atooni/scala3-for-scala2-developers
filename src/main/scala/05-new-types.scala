@@ -10,6 +10,11 @@
  * `B with A` in the event there are no overlaps between `A` and `B`.
  * 
  * Intersection types are useful to describe types having all the members of other types.
+ * 
+ * Commutativity: A & B == B & A
+ * Associativity: (A & B) & C == A & (B & C)
+ * A & Nothing == Nothing
+ * Distributivity: A & (B | C) == A & B | A & C
  */
 object intersection_types:
   final case class User(name: String, id: String, email: String)
@@ -60,6 +65,11 @@ object intersection_types:
  * types `A` and `B`, written `A | B`, describes the type of values that have either type `A` or 
  * type `B`. For example, `Int | String` is the type of values that have either type `Int` or 
  * type `String`. Union types are powerful but do have limitations stemming from type erasure.
+ * 
+ * Commutativity: A | B == B | A
+ * Associativity: A | (B | C) == (A | B) | C
+ * Identity:      A | Nothing == A 
+ * forall B >: A: A | B == B
  */
 object union_types:
   final case class PaymentDenied(message: String)
@@ -99,6 +109,16 @@ object union_types:
   example2 match
     case PaymentDenied(m) =>   println(s"Earn some money first ... ($m)")
     case MissingAddress(m) =>  println(s"Oh brother, where art though ? - ($m)")
+
+  /**
+   * EXERCISE 5
+   * 
+   * Try to pattern match on `SomeList` and handle both cases. Explain 
+   * your findings and what this implies about union types.
+   */
+  def whatList(l: SomeList) = ???
+
+  type SomeList = List[String] | List[Int]
 
 /**
  * MATCH TYPES
@@ -305,7 +325,7 @@ object opaque_types:
  */
 object polymorphic_functions:
   def identityMethod[A](a: A): A = a 
-  val identityFn = [A] => (a: A) => a
+  val identityFn: [X] => X => X = [A] => (a: A) => a
 
   /**
    * EXERCISE 1
@@ -381,7 +401,6 @@ object type_lambdas:
 
   val sizableList = new Sizable[List]:
     def size[A](fa: List[A]): Int = fa.length
-
   /**
    * EXERCISE 1
    * 
@@ -417,7 +436,9 @@ object type_lambdas:
    * constructor which takes one type parameter, returning the type constructed by the original 
    * type constructor, fully applied with both type parameters.
    */
-  type Curry[F[_, _]] = [A] =>> [B] =>> F[A,B] 
+  type Curry[F[_, _]] = [A] =>> [B] =>> F[A, B]
+
+  // type Uncurry[F[_][_]] = [A, B] =>> F[A][B]
 
   /**
    * EXERCISE 5
