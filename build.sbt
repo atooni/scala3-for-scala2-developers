@@ -1,5 +1,5 @@
-import sbt.Keys._ 
-import sbt._ 
+import sbt.Keys._
+import sbt._
 
 val dottyVersion = "3.0.0-M3"
 
@@ -12,7 +12,8 @@ lazy val root = project
       "-language:postfixOps",
       "-Ykind-projector",
       "-Yexplicit-nulls",
-      "-source", "3.1"
+      "-source",
+      "3.1"
     ),
     scalaVersion := dottyVersion
   )

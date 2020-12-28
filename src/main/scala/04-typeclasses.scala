@@ -44,8 +44,8 @@ object typeclass_basics:
   trait PrettyPrint[-A]:
     extension (a: A) def prettyPrint: String
 
-  given PrettyPrint[String]:
-    extension (a: String) def prettyPrint: String = a
+  given PrettyPrint[String] with 
+    extension (a: String) def prettyPrint : String = a
 
   "foo".prettyPrint
 
@@ -57,7 +57,7 @@ object typeclass_basics:
    * With the help of the `given` keyword, create an instance of the `PrettyPrint` typeclass for the 
    * data type `Person` that renders the person in a pretty way.
    */
-  given PrettyPrint[Person]:
+  given PrettyPrint[Person] with 
     extension (p: Person) def prettyPrint: String = s"Person(${p.name}, ${p.age})"
 
   val s = Person("Andreas", 52).prettyPrint  
@@ -68,7 +68,7 @@ object typeclass_basics:
    * With the help of the `given` keyword, create a **named* instance of the `PrettyPrint` typeclass 
    * for the data type `Int` that renders the integer in a pretty way.
    */
-  given intPrettyPrint as PrettyPrint[Int]:
+  given intPrettyPrint : PrettyPrint[Int] with
     extension (i : Int) def prettyPrint: String = i.toString
 
   /**
@@ -100,7 +100,7 @@ object typeclass_basics:
    * With the help of both `given` and `using`, create an instance of the `PrettyPrint` type class
    * for a generic `List[A]`, given an instance of `PrettyPrint` for the type `A`.
    */
-  given [A] (using PrettyPrint [A]) as PrettyPrint[List[A]] =
+  given [A] (using PrettyPrint [A]) : PrettyPrint[List[A]] =
     l => l.map(_.prettyPrint).mkString(",")
 //    extension (a: List[A]) def prettyPrint: String = a.map(_.prettyPrint).mkString(",")
 
@@ -110,7 +110,7 @@ object typeclass_basics:
    * With the help of both `given` and `using`, create a **named** instance of the `PrettyPrint` 
    * type class for a generic `Vector[A]`, given an instance of `PrettyPrint` for the type `A`.
    */
-  given vectorPrettyPrint[A](using PrettyPrint[A]) as PrettyPrint[Vector[A]]:
+  given vectorPrettyPrint[A](using PrettyPrint[A]) : PrettyPrint[Vector[A]] with
     extension (v : Vector[A]) def prettyPrint: String = v.map(_.prettyPrint).mkString(",")
 
 object given_scopes:
@@ -244,10 +244,10 @@ object typeclass_graduation:
     given EncodeData[Unit] = Data.Primitive(_, PrimType.Unit)
     given EncodeData[String] = Data.Primitive(_, PrimType.String)
 
-    given [A](using EncodeData[A]) as EncodeData[Vector[A]] =
+    given [A](using EncodeData[A]) : EncodeData[Vector[A]] =
       v => Data.Collection(v.map(_.encode))
 
-    given [A](using EncodeData[A]) as EncodeData[List[A]] = 
+    given [A](using EncodeData[A]) : EncodeData[List[A]] = 
       v => Data.Collection(v.toVector.map(_.encode))
 
 

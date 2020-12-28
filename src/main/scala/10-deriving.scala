@@ -27,7 +27,7 @@ object typeclass_deriving:
         case (x, elem) => showElem(elem)(x)
       }.mkString(", ")
 
-    inline given derived[A](using m: Mirror.Of[A]) as Show[A] =
+    inline given derived[A](using m: Mirror.Of[A]) : Show[A] =
       lazy val elemInstances = summonAll[m.MirroredElemTypes]
       inline m match 
         case s: Mirror.SumOf[A]     => showSum(s, elemInstances)
